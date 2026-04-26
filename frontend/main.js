@@ -15,8 +15,9 @@ const app = new Vue({
     router,
     data() {
       return {
-        isAuth: true,
-        userrole: "doctor" ,
+        isAuth: window.initialAuth.isAuth,
+        userid: window.initialAuth.userid,
+        userrole: window.initialAuth.userrole
       };
-    }
+    },
 });

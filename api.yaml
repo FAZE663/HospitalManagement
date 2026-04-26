@@ -1,0 +1,1443 @@
+openapi: 3.0.0
+info:
+  title: Hospital Management System API
+  version: 1.0.0
+  description: API documentation for the Flask-RESTful Hospital Management System application.
+servers:
+  - url: /api
+    description: Base URL for all API endpoints
+
+paths:
+  /doctors:
+    get:
+      summary: Get a list of all doctors
+      responses:
+        '200':
+          description: A list of doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DoctorSummary'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    post:
+      summary: Add a new doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewDoctor'
+      responses:
+        '200':
+          description: Doctor added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageWithId'
+        '500':
+          description: Error adding doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /doctors/{did}:
+    parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int3
+        description: The doctor's ID
+    get:
+      summary: Get details for a specific doctor
+      responses:
+        '200':
+          description: Doctor details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoctorDetails'
+        '404':
+          description: Doctor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update a doctor's information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateDoctor'
+      responses:
+        '200':
+          description: Doctor updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Doctor or Department not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error updating doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Delete a doctor
+      responses:
+        '200':
+          description: Doctor deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Doctor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error deleting doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /doctorlist/{deptid}:
+    parameters:
+      - name: deptid
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Department ID
+    get:
+      summary: Get a list of doctors by department ID
+      responses:
+        '200':
+          description: A list of doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DoctorList'
+        '500':
+          description: Error fetching doctors by department
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patients:
+    get:
+      summary: Get a list of all patients
+      responses:
+        '200':
+          description: A list of patients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientSummary'
+        '500':
+          description: Error fetching patients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    post:
+      summary: Add a new patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPatient'
+      responses:
+        '200':
+          description: Patient added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageWithPid'
+        '500':
+          description: Error adding patient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patients/{pid}:
+    parameters:
+      - name: pid
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+        description: The patient's ID
+    get:
+      summary: Get details for a specific patient, including appointments and history
+      responses:
+        '200':
+          description: Patient details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientDetails'
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update a patient's information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePatient'
+      responses:
+        '200':
+          description: Patient updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error updating patient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Delete a patient
+      responses:
+        '200':
+          description: Patient deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error deleting patient
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /appointments:
+    get:
+      summary: Get a list of all appointments
+      responses:
+        '200':
+          description: A list of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppointmentSummary'
+        '500':
+          description: Error fetching appointments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+  
+  /appointments/{did}: 
+    post:
+      summary: Book a new appointment 
+      parameters:
+        - name: did # This is confusing, but based on `new_appointment(pid=did)` in the code, this path parameter is the PID.
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The **Patient's ID (PID)** booking the appointment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAppointment'
+      responses:
+        '200':
+          description: Appointment booked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageWithAid'
+        '400':
+          description: Slot not available or error parsing data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Internal server error (The POST logic is slightly confusing in the code.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update an appointment's status (did used as aid in logic)
+      parameters:
+        - name: did # Path variable `did` is used as `aid` in the function logic.
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The **Appointment ID (AID)** to update.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAppointment'
+      responses:
+        '200':
+          description: Appointment updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error updating appointment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    delete:
+      summary: Delete an appointment (did used as aid in logic)
+      parameters:
+        - name: did # Path variable `did` is used as `aid` in the function logic.
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: The **Appointment ID (AID)** to delete.
+      responses:
+        '200':
+          description: Appointment deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error deleting appointment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /appointments/fetch/{aid}:
+    parameters:
+      - name: aid
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Appointment ID
+    get:
+      summary: Get details for a specific appointment
+      responses:
+        '200':
+          description: Appointment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentDetails'
+        '404':
+          description: Appointment not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error fetching appointment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /appointments/doctors/{did}:
+    parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Doctor ID
+    get:
+      summary: Get a list of appointments for a specific doctor (with Redis caching)
+      responses:
+        '200':
+          description: A list of appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DoctorAppointmentSummary'
+        '500':
+          description: Error fetching appointments for doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patienthistory:
+    post:
+      summary: Add a new patient history record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPatientHistory'
+      responses:
+        '200':
+          description: Patient history added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessageWithPhid'
+        '500':
+          description: Error adding patient history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patienthistory/fetch/{appid}:
+    parameters:
+      - name: appid
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Appointment ID associated with the history
+    get:
+      summary: Get patient history by appointment ID
+      responses:
+        '200':
+          description: Patient history details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientHistoryDetails'
+        '404':
+          description: Patient history not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error fetching patient history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patienthistory/{pid}:
+    parameters:
+      - name: pid
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Patient ID
+    get:
+      summary: Get all patient history records for a specific patient
+      responses:
+        '200':
+          description: A list of patient history records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientHistoryDetails'
+        '500':
+          description: Error fetching patient history
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patientselect/{did}:
+    parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Doctor ID
+    get:
+      summary: Get a list of patients who have appointments with a specific doctor
+      responses:
+        '200':
+          description: A list of patients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PatientSummary'
+        '500':
+          description: Error fetching patients for doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /slots/{did}:
+    parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Doctor ID
+    get:
+      summary: Get available slots for a doctor for the next 3 days (today + 2 days)
+      responses:
+        '200':
+          description: A list of available slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SlotDetails'
+        '500':
+          description: Error fetching slots for doctor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update the status of a specific slot for a doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSlot'
+      responses:
+        '200':
+          description: Slot updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '404':
+          description: Slot not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error updating slot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    post:
+      summary: Add or update multiple slots for a doctor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/NewSlot'
+      responses:
+        '200':
+          description: Slots processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '500':
+          description: Error adding slot
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /slotconfig/{did}:
+    parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Doctor ID
+    get:
+      summary: Get or initialize the slot configuration for a doctor
+      responses:
+        '200':
+          description: Slot configuration details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlotConfigDetails'
+        '500':
+          description: Error fetching slot configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /doctors/image/{did}:
+    parameters:
+      - name: did
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Doctor ID
+    get:
+      summary: Get the profile image for a specific doctor
+      responses:
+        '200':
+          description: Doctor profile image file
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Profile image not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error fetching profile image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update the profile image for a doctor
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image file to upload
+      responses:
+        '200':
+          description: Profile image updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: No image file provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Doctor not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error updating profile image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /doctors/image/dept/{deptid}:
+    parameters:
+      - name: deptid
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Department ID
+    get:
+      summary: Get profile images for doctors in a specific department
+      responses:
+        '200':
+          description: A list of doctor profile image data (base64 encoded)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageSummary'
+        '500':
+          description: Error fetching profile images by department
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /patients/image/{pid}:
+    parameters:
+      - name: pid
+        in: path
+        required: true
+        schema:
+          type: integer
+        description: The Patient ID
+    get:
+      summary: Get the profile image for a specific patient
+      responses:
+        '200':
+          description: Patient profile image file
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Profile image not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error fetching profile image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+    put:
+      summary: Update the profile image for a patient
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: Image file to upload
+      responses:
+        '200':
+          description: Profile image updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessMessage'
+        '400':
+          description: No image file provided
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '404':
+          description: Patient not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+        '500':
+          description: Error updating profile image
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /departments:
+    get:
+      summary: Get a list of all departments
+      responses:
+        '200':
+          description: A list of departments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Department'
+        '500':
+          description: Error fetching departments
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+  /login:
+    post:
+      summary: Authenticate a user (patient, doctor, or admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginCredentials'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSuccess'
+        '500':
+          description: Login failed (wrong password, user not registered, or wrong usertype)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorMessage'
+
+components:
+  schemas:
+    ErrorMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Doctor not found
+    SuccessMessage:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Doctor updated successfully
+    SuccessMessageWithId:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Doctor added successfully
+        did:
+          type: integer
+          example: 5
+    SuccessMessageWithPid:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Patient added successfully
+        pid:
+          type: integer
+          example: 10
+    SuccessMessageWithAid:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Appointment booked successfully
+        aid:
+          type: integer
+          example: 25
+    SuccessMessageWithPhid:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Patient history added successfully
+        phid:
+          type: integer
+          example: 12
+    DoctorSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Dr. Alice Smith
+        specialization:
+          type: string
+          example: Cardiology
+        qualification:
+          type: string
+          example: MD, FACC
+        rating:
+          type: number
+          format: float
+          example: 4.8
+        email:
+          type: string
+          format: email
+          example: alice.smith@hospital.com
+    DoctorDetails:
+      allOf:
+        - $ref: '#/components/schemas/DoctorSummary'
+        - type: object
+          properties:
+            profile_image:
+              type: string
+              example: QWxpY2UgU21pdGg= # Base64 encoded image snippet
+              nullable: true
+            image_mimetype:
+              type: string
+              example: image/jpeg
+              nullable: true
+            profile_note:
+              type: string
+              example: Experienced in pediatric heart conditions.
+              nullable: true
+    NewDoctor:
+      type: object
+      required:
+        - name
+        - specialization
+        - qualification
+        - email
+      properties:
+        name:
+          type: string
+          example: Dr. Bob Johnson
+        specialization:
+          type: string
+          example: Pediatrics
+        qualification:
+          type: string
+          example: MD
+        email:
+          type: string
+          format: email
+          example: bob.johnson@hospital.com
+        rating:
+          type: number
+          format: float
+          example: 4.0
+          nullable: true
+    UpdateDoctor:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Dr. Alice Smith-Jones
+        specialization:
+          type: string
+          example: Cardiology
+        qualifications:
+          type: string
+          example: MD, FACC, FAHA
+        rating:
+          type: number
+          format: float
+          example: 4.9
+        email:
+          type: string
+          format: email
+          example: alice.sj@hospital.com
+        profile_note:
+          type: string
+          example: Experienced in pediatric heart conditions. Available Monday-Friday.
+    DoctorList:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Dr. Alice Smith
+        specialization:
+          type: string
+          example: Cardiology
+        qualification:
+          type: string
+          example: MD, FACC
+        rating:
+          type: number
+          format: float
+          example: 4.8
+        profile_note:
+          type: string
+          example: Experienced in pediatric heart conditions.
+    PatientSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        name:
+          type: string
+          example: John Doe
+        age:
+          type: string
+          format: date
+          example: 1990-05-15 # dob
+        phone:
+          type: string
+          example: "555-1234"
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        gender:
+          type: string
+          example: Male
+    PatientDetails:
+      allOf:
+        - $ref: '#/components/schemas/PatientSummary'
+        - type: object
+          properties:
+            profile_image:
+              type: string
+              example: QWxpY2UgU21pdGg= # Base64 encoded image snippet
+              nullable: true
+            image_mimetype:
+              type: string
+              example: image/jpeg
+              nullable: true
+            appointments:
+              type: array
+              items:
+                $ref: '#/components/schemas/PatientAppointment'
+            histories:
+              type: array
+              items:
+                $ref: '#/components/schemas/PatientHistoryInDetails'
+    NewPatient:
+      type: object
+      required:
+        - name
+        - age
+        - gender
+        - phone
+        - email
+        - password
+      properties:
+        name:
+          type: string
+          example: Jane Doe
+        age:
+          type: string
+          format: date
+          example: 1985-10-20
+        gender:
+          type: string
+          example: Female
+        phone:
+          type: string
+          example: "555-5678"
+        email:
+          type: string
+          format: email
+          example: jane.doe@example.com
+        password:
+          type: string
+          format: password
+          example: securepass123
+    UpdatePatient:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Johnathan Doe
+        gender:
+          type: string
+          example: Other
+        phone_number:
+          type: string
+          example: "555-9999"
+        email:
+          type: string
+          format: email
+          example: jon.doe@example.com
+    AppointmentSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 25
+        doctor:
+          type: string
+          example: Dr. Alice Smith
+        patient:
+          type: string
+          example: John Doe
+        pid:
+          type: integer
+          example: 10
+        dept:
+          type: string
+          example: Cardiology
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: 09:00
+        status:
+          type: string
+          example: upcoming
+    AppointmentDetails:
+      allOf:
+        - $ref: '#/components/schemas/AppointmentSummary'
+        - type: object
+          properties:
+            did:
+              type: integer
+              example: 1
+    NewAppointment:
+      type: object
+      required:
+        - did
+        - date
+        - time
+      properties:
+        did:
+          type: integer
+          example: 1 # Doctor ID
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: '10:00'
+        # The PID is taken from the path parameter, but we include it here for context in the request data, assuming the patient may also send their own ID in the body for verification.
+        # pid:
+        #   type: integer
+        #   example: 10
+    UpdateAppointment:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          example: completed
+          enum: [upcoming, completed, cancelled]
+    PatientAppointment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 25
+        doctor:
+          type: string
+          example: Dr. Alice Smith
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: 09:00
+        status:
+          type: string
+          example: upcoming
+    DoctorAppointmentSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 25
+        pid:
+          type: integer
+          example: 10
+        patient:
+          type: string
+          example: John Doe
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: 09:00
+        status:
+          type: string
+          example: upcoming
+    NewPatientHistory:
+      type: object
+      required:
+        - pid
+        - did
+        - aid
+        - diagnosis
+        - treatment
+      properties:
+        pid:
+          type: integer
+          example: 10
+        did:
+          type: integer
+          example: 1
+        aid:
+          type: integer
+          example: 25
+        diagnosis:
+          type: string
+          example: Hypertension
+        treatment:
+          type: string
+          example: Prescribed Losartan 50mg daily.
+        notes:
+          type: string
+          example: Patient advised on low-sodium diet.
+          nullable: true
+    PatientHistoryDetails:
+      type: object
+      properties:
+        history_id:
+          type: integer
+          example: 1
+        appointment_id:
+          type: integer
+          example: 25
+        doctor_id:
+          type: integer
+          example: 1
+        doctor_name:
+          type: string
+          example: Dr. Alice Smith
+        patient_name:
+          type: string
+          example: John Doe
+        patient_id:
+          type: integer
+          example: 10
+        diagnosis:
+          type: string
+          example: Hypertension
+        treatment:
+          type: string
+          example: Prescribed Losartan 50mg daily.
+        notes:
+          type: string
+          example: Patient advised on low-sodium diet.
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+    PatientHistoryInDetails:
+      type: object
+      properties:
+        history_id:
+          type: integer
+          example: 1
+        appointment_id:
+          type: integer
+          example: 25
+        doctor_id:
+          type: integer
+          example: 1
+        doctor_name:
+          type: string
+          example: Dr. Alice Smith
+        diagnosis:
+          type: string
+          example: Hypertension
+        treatment:
+          type: string
+          example: Prescribed Losartan 50mg daily.
+        notes:
+          type: string
+          example: Patient advised on low-sodium diet.
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+    SlotDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: '09:00'
+        status:
+          type: string
+          example: Available
+          enum: [Available, Booked]
+    UpdateSlot:
+      type: object
+      required:
+        - date
+        - time
+        - status
+      properties:
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: '09:00'
+        status:
+          type: string
+          example: Booked
+          enum: [Available, Booked]
+    NewSlot:
+      type: object
+      required:
+        - date
+        - time
+      properties:
+        date:
+          type: string
+          format: date
+          example: 2025-12-01
+        time:
+          type: string
+          format: time
+          example: '10:00'
+        status:
+          type: string
+          example: Available
+          enum: [available, booked]
+          default: available
+    SlotConfigDetails:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        start_time:
+          type: string
+          format: time
+          example: '09:00'
+        end_time:
+          type: string
+          format: time
+          example: '17:00'
+        interval_minutes:
+          type: integer
+          example: 60
+    ImageSummary:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Dr. Alice Smith
+        profile_image:
+          type: string
+          example: QWxpY2UgU21pdGg= # Base64 encoded image snippet
+        image_mimetype:
+          type: string
+          example: image/jpeg
+    Department:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Cardiology
+    LoginCredentials:
+      type: object
+      required:
+        - email
+        - password
+        - role
+      properties:
+        email:
+          type: string
+          format: email
+          example: alice.smith@hospital.com
+        password:
+          type: string
+          format: password
+          example: doctorpass
+        role:
+          type: string
+          enum: [patient, doctor, admin]
+          example: doctor
+    LoginSuccess:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: success
+        userid:
+          type: integer
+          example: 1 # did or pid
+        username:
+          type: string
+          example: Dr. Alice Smith
+          nullable: true

@@ -2,14 +2,14 @@ export default {
   name: "AdminDoctors",
   data() {
     return {
-      doctors: [
-        { id: 1, name: "Dr. John Doe", specialization: "Cardiology", email: "john@example.com" },
-        { id: 2, name: "Dr. Sarah Lee", specialization: "Pediatrics", email: "sarah@example.com" },
-      ],
-      newDoctor: { name: "", specialization: "", email: "" , qualification: "" },
+      doctors: [],
+      newDoctor: { name: "", specialization: "", email: "" , qualification: ""},
       editingDoctor: null,
       searchQuery: "",
     };
+  },
+  mounted(){
+    this.fetchDoctors();
   },
   computed: {
     filteredDoctors() {
@@ -20,12 +20,27 @@ export default {
   },
   methods: {
     addDoctor() {
+
+      console.log("BUTTON CLICKED!");
       if (!this.newDoctor.name || !this.newDoctor.specialization || !this.newDoctor.email || !this.newDoctor.qualification) {
         alert("Please fill all fields!");
         return;
       }
-      const newId = this.doctors.length + 1;
-      this.doctors.push({ id: newId, ...this.newDoctor });
+      
+      //this.doctors.push({ id: newId, ...this.newDoctor });
+      fetch("http://localhost:5000/api/doctors", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({...this.newDoctor })
+      }).then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
       this.newDoctor = { name: "", specialization: "", email: "" };
     },
 
@@ -37,15 +52,49 @@ export default {
       const index = this.doctors.findIndex((d) => d.id === this.editingDoctor.id);
       if (index !== -1) {
         this.doctors.splice(index, 1, this.editingDoctor);
+        fetch(`http://localhost:5000/api/doctors/${this.editingDoctor.id}`,{
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(this.editingDoctor)
+      }).then(response => JSON.stringify(response))
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
       }
       this.editingDoctor = null;
     },
 
     deleteDoctor(id) {
       if (confirm("Are you sure you want to delete this doctor?")) {
+
+        fetch(`http://localhost:5000/api/doctors/${id}`,{
+          method: 'DELETE',
+          }).then(response => response.json())
+          .then(data => {
+            console.log('Success:', data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+        });
         this.doctors = this.doctors.filter((d) => d.id !== id);
       }
     },
+
+    fetchDoctors() {
+      fetch("http://localhost:5000/api/doctors")
+        .then((response) => response.json())
+        .then((data) => {
+          this.doctors = data;
+        })
+        .catch((error) => {
+          console.error("Error fetching doctors:", error);
+        });
+    }
   },
   template: `
   <div class="container mt-4">
@@ -96,6 +145,7 @@ export default {
             <th>#</th>
             <th>Name</th>
             <th>Specialization</th>
+            <th>Qualification</th>
             <th>Email</th>
             <th>Actions</th>
           </tr>
@@ -112,6 +162,11 @@ export default {
               <input v-model="editingDoctor.specialization" class="form-control" />
             </td>
             <td v-else>{{ doctor.specialization }}</td>
+
+            <td v-if="editingDoctor && editingDoctor.id === doctor.id">
+              <input v-model="editingDoctor.qualification" class="form-control" />
+            </td>
+            <td v-else>{{ doctor.qualification }}</td>
 
             <td v-if="editingDoctor && editingDoctor.id === doctor.id">
               <input v-model="editingDoctor.email" class="form-control" />

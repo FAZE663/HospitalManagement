@@ -2,10 +2,7 @@ export default {
     name: 'AdminPatients',
     data(){
         return {
-            patients: [
-                { id: 1, name: "Jane Smith", age: 30, gender: "Female", email: "123@gmail.com" , phone : "1234567890"},
-                { id: 2, name: "Michael Brown", age: 45, gender: "Male", email: "adf@gmail.com" , phone : "0987654321"},
-            ],
+            patients: [],
         newPatient: {
             name: "",
             age: "",
@@ -16,6 +13,9 @@ export default {
         editingPatient: null,
         searchQuery: ""
         }
+    },
+    mounted(){
+        this.fetchPatients();
     },
     computed: {
         filteredPatients() {
@@ -29,10 +29,25 @@ export default {
             if (!this.newPatient.name || !this.newPatient.age || !this.newPatient.gender || !this.newPatient.email || !this.newPatient.phone) {
                 alert("Please fill all the fields");
                 return;
-            }
-            const newPID = this.patients.length + 1;
-            this.patients.push({ id: newPID, ...this.newPatient });
-            this.newPatient = { name: "", age: "", gender: "", email: "", phone: "" };  
+            };
+            //this.patients.push({ id: newPID, ...this.newPatient });
+            fetch("http://localhost:5000/api/patients", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(this.newPatient),
+             }).then(response => response.json())
+              .then(data => {
+                console.log('Success:', data);
+                this.patients.push( {id:data.pid, ...this.newPatient});
+
+
+                this.newPatient = { name: "", age: "", gender: "", email: "", phone: "" };
+              })
+             .catch((error) => {
+                console.error('Error:', error);
+             });  
 
         },
 
@@ -44,14 +59,52 @@ export default {
             const index = this.patients.findIndex((p) => p.id === this.editingPatient.id);
             if (index !== -1) {
                 this.patients.splice(index, 1, this.editingPatient);
+
+                fetch(`http://localhost:5000/api/patients/${this.editingPatient.id}`, {
+                  method: 'PUT',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify(this.editingPatient),
+                })
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error('Something went wrong while updating the patient');
+                  } else {
+                    console.log('Patient updated successfully');
+                  }
+                })
+                .catch((error) => {
+                  console.error('Error:', error);
+                });
             }
             this.editingPatient = null;
         },
         
         deletePatient(id) {
             if (confirm("Are you sure you want to delete this patient?")) {
-                this.patients = this.patients.filter((p) => p.id !== id);
+                fetch(`http://localhost:5000/api/patients/${id}`, {
+                  method: 'DELETE',
+                })
+                .then(response => response.json())
+                .then(data => {
+                  this.patients = this.patients.filter((p) => p.id !== id);
+                  console.log('Patient deleted successfully');
+                })
+                .catch((error) => {
+                  console.error('Error:', error);
+                });
             }
+        },
+        fetchPatients(){
+            fetch("http://localhost:5000/api/patients")
+            .then(response => response.json())
+            .then(data => {
+                this.patients = data;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
         }
     },
     template: `
@@ -75,7 +128,7 @@ export default {
           <input v-model="newPatient.name" class="form-control" placeholder="Name" />
         </div>
         <div class="col-md-2">
-          <input v-model="newPatient.age" class="form-control" placeholder="Age" type="number" />
+          <input v-model="newPatient.age" class="form-control" placeholder="DOB" type="date" />
         </div>
         <div class="col-md-2">
           <input v-model="newPatient.gender" class="form-control" placeholder="Gender" />
@@ -100,7 +153,7 @@ export default {
           <tr>
             <th>#</th>
             <th>Name</th>
-            <th>Age</th>
+            <th>DOB</th>
             <th>Gender</th>
             <th>Email</th>
             <th>Phone</th>
@@ -116,7 +169,7 @@ export default {
             <td v-else>{{ patient.name }}</td>
 
             <td v-if="editingPatient && editingPatient.id === patient.id">
-              <input v-model="editingPatient.age" class="form-control" type="number" />
+              <input v-model="editingPatient.age" class="form-control" type="date" />
             </td>
             <td v-else>{{ patient.age }}</td>
 

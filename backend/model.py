@@ -1,19 +1,33 @@
 from flask_sqlalchemy import SQLAlchemy
-
+import os
 db = SQLAlchemy()
+
+
+
+pwd=os.path.dirname(__file__)
+def get_default_image():
+    with open(f'{pwd}/../frontend/static/defaultimage.jpg', "rb") as f:
+        return f.read()
 
 class Doctor(db.Model):
     __tablename__ = 'doctor'
     did = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
-    specialty = db.Column(db.String(100), nullable=False)
+    department = db.Column(db.Integer, db.ForeignKey('departments.dept_id'),nullable=False)
     qualifications = db.Column(db.String(200), nullable=False)
     rating = db.Column(db.Float)
+    email = db.Column(db.String(100), nullable=False)
+    profile_note = db.Column(db.String(500))
+    profile_image = db.Column(db.LargeBinary , default=get_default_image)
+    image_mimetype = db.Column(db.String(50) , default='image/jpeg')
+    password = db.Column(db.String(100), nullable=False , default = 'password')
 
     # Relationships
     slots = db.relationship('Slot', back_populates='doctor', cascade="all, delete-orphan")
     appointments = db.relationship('Appointment', back_populates='doctor', cascade="all, delete-orphan")
     histories = db.relationship('PatientHistory', back_populates='doctor', cascade="all, delete-orphan")
+    slot_config = db.relationship("SlotConfig", back_populates="doctor", uselist=False)
+    department_info = db.relationship("Departments", primaryjoin="Doctor.department==Departments.dept_id", viewonly=True)
 
 
 class Patient(db.Model):
@@ -23,6 +37,11 @@ class Patient(db.Model):
     dob = db.Column(db.Date, nullable=False)
     phone_number = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    gender = db.Column(db.String(10), nullable=False)
+    profile_image = db.Column(db.LargeBinary , default=get_default_image)
+    image_mimetype = db.Column(db.String(50) , default='image/jpeg')
+
+    password = db.Column(db.String(100), nullable=False, default='password')
 
     # Relationships
     appointments = db.relationship('Appointment', back_populates='patient', cascade="all, delete-orphan")
@@ -71,3 +90,23 @@ class PatientHistory(db.Model):
     patient = db.relationship('Patient', back_populates='histories')
     doctor = db.relationship('Doctor', back_populates='histories')
     appointment = db.relationship('Appointment', back_populates='history')
+
+class SlotConfig(db.Model):
+    __tablename__ = "slot_config"
+    id = db.Column(db.Integer, primary_key=True)
+    did = db.Column(db.Integer, db.ForeignKey("doctor.did"), nullable=False)
+    start_time = db.Column(db.Time, nullable=False)
+    end_time = db.Column(db.Time, nullable=False)
+    interval_minutes = db.Column(db.Integer, default=30)
+
+    doctor = db.relationship("Doctor", back_populates="slot_config")
+
+
+class Departments(db.Model):
+    __tablename__ = 'departments'
+    dept_id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.String(200))
+
+
+    

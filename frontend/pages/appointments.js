@@ -2,26 +2,12 @@ export default {
   name: 'AdminAppointments',
   data() {
     return {
-      appointments: [
-        { id: 1, doctor: "Dr. John Doe", patient: "Jane Smith", dept: "Cardiology", date: "2025-10-04", time: "10:00 AM" },
-        { id: 2, doctor: "Dr. Emily Clark", patient: "Michael Brown", dept: "Neurology", date: "2025-10-05", time: "02:30 PM" },
-        { id: 3, doctor: "Dr. Sarah Lee", patient: "Robert Davis", dept: "Orthopedics", date: "2025-10-06", time: "09:30 AM" },
-      ],
+      appointments: [],
       searchQuery: "",
       showHistory: false,
       selectedPatient: null,
-      patientHistory: {
-        "Jane Smith": [
-          { date: "2025-07-01", diagnosis: "Hypertension", treatment: "Medication" },
-          { date: "2025-08-10", diagnosis: "High Cholesterol", treatment: "Diet Control" },
-        ],
-        "Michael Brown": [
-          { date: "2025-06-12", diagnosis: "Migraine", treatment: "Pain Relief Therapy" },
-        ],
-        "Robert Davis": [
-          { date: "2025-05-10", diagnosis: "Fractured Arm", treatment: "Cast and Physiotherapy" },
-        ]
-      }
+      patname: null,
+      patientHistory: {}
     };
   },
   computed: {
@@ -34,17 +20,51 @@ export default {
     }
   },
   methods: {
-    viewHistory(patientName) {
-      this.selectedPatient = patientName;
+    viewHistory(pid,name) {
+      this.fetchPatientHistory(pid);
+      this.selectedPatient = pid;
+      this.patname = name;
       this.showHistory = true;
-      document.body.classList.add("modal-open"); // prevent scrolling
+      document.body.classList.add("modal-open"); 
     },
     closeHistory() {
       this.showHistory = false;
       this.selectedPatient = null;
-      document.body.classList.remove("modal-open"); // allow scrolling again
+      document.body.classList.remove("modal-open"); 
+    },
+
+    fetchAppointments() {
+      fetch('/api/appointments')
+        .then(response => response.json())
+        .then(data => {
+          
+          this.appointments = data.map(app => ({
+            id: app.id,
+            doctor: app.doctor,
+            patient: app.patient,
+            pid: app.pid,
+            dept: app.dept,
+            date: app.date,
+            time: app.time
+          }));
+        } )
+        .catch(error => console.error('Error fetching appointments:', error));
+    },
+    fetchPatientHistory(pid) {
+      fetch(`/api/patienthistory/${pid}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('Fetched patient history:', data);
+          this.$set(this.patientHistory, pid, data);
+        })
+        .catch(error => console.error('Error fetching patient history:', error));
     }
   },
+  mounted() {
+    this.fetchAppointments();
+  },
+
+
   template: `
   <div class="container mt-4">
     <h2 class="text-primary mb-4">Appointments Overview</h2>
@@ -78,7 +98,7 @@ export default {
             <td>{{ appointment.date }}</td>
             <td>{{ appointment.time }}</td>
             <td>
-              <button class="btn btn-sm btn-info" @click="viewHistory(appointment.patient)">View History</button>
+              <button class="btn btn-sm btn-info" @click="viewHistory(appointment.pid , appointment.patient)">View History</button>
             </td>
           </tr>
         </tbody>
@@ -91,7 +111,7 @@ export default {
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content shadow-lg">
             <div class="modal-header">
-              <h5 class="modal-title text-primary">Patient History - {{ selectedPatient }}</h5>
+              <h5 class="modal-title text-primary">Patient History - {{ this.patname }}</h5>
               <button type="button" class="btn-close" @click="closeHistory"></button>
             </div>
             <div class="modal-body">

@@ -53,6 +53,10 @@ const Navbar = {
             <li class="nav-item">
               <router-link class="nav-link" to="/doctor/appointments">My Appointments</router-link>
             </li>
+
+            <li class="nav-item">
+              <router-link class="nav-link" to="/doctor/profile">My Profile</router-link>
+            </li>
           </template>
 
           <!-- Patient Menu -->
@@ -65,6 +69,9 @@ const Navbar = {
             </li>
             <li class="nav-item">
               <router-link class="nav-link" to="/patient/history">My History</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/patient/profile">My Profile</router-link>
             </li>
           </template>
 
